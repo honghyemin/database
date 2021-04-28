@@ -1,0 +1,52 @@
+/* **** 시퀀스 (SEQUENCE) ***
+SEQUENCE : DB에서 제공하는 자동채번 객체
+생성 : CREATE SEQUENCE 시퀀스명;
+삭제: DROP SEQUENCE 시퀀스명;
+
+시퀀스명.NEXVAL : 시퀀스 번호(값) 생성
+시퀀스명.CURRVAL : 현재 시퀀스 값 확인(NAXVAL 한번 이상 실행 후)
+
+
+
+*************/
+CREATE SEQUENCE SEQUENCE1;
+
+CREATE SEQUENCE  "MADANG"."SEQUENCE1"  
+MINVALUE 1 MAXVALUE 9999999999999999999999999999 -- NUMBER타입이 저장할 수 있는 최대 값
+INCREMENT BY 1 -- 1씩 증가
+START WITH 1  -- 시작 값은 1
+CACHE 20 -- 임시저장공간에 미리 20까지 만들어놓음
+NOORDER  NOCYCLE ; -- ㅡMAXVALUE까지 다 차면 다시 1번으로 반복
+
+------------------------------------
+SELECT SEQUENCE1.NEXTVAL FROM DUAL; -- NEXTVAL : 새로운 번호 생성
+SELECT SEQUENCE1.CURRVAL FROM DUAL; -- CURRVAL : 현재 시퀀스 번호(마지막 번호)
+------------------------
+SELECT * FROM BOOK ORDER BY BOOKID DESC;
+SELECT MAX(BOOKID), NVL(MAX(BOOKID),0) +1 FROM BOOK;
+
+-- BOOK 테이블에 INSERT작업, BOOKID 최댓값 + 1 사용
+INSERT INTO BOOK
+        (BOOKID, BOOKNAME, PUBLISHER, PRICE)
+VALUES((SELECT NVL(MAX(BOOKID),0)+1 FROM BOOK),
+        'MAX(BOOKID)+1', 'IT_BOOK', 20000);
+        
+SELECT * FROM BOOK ORDER BY BOOKID DESC;
+---------------------------------
+-- 시퀀스를 사용하는 방식
+CREATE SEQUENCE SEQ_BOOK
+START WITH 50 -- 시작번호 50
+INCREMENT BY 1 -- 1씩 증가(DEFAULT값이므로 생략 가능)
+NOCACHE; -- CACHE를 사용하는 것이 DEFAULT
+---
+SELECT SEQ_BOOK.NEXTVAL FROM DUAL;
+
+
+SELECT * FROM BOOK ORDER BY BOOKID DESC;
+SELECT MAX(BOOKID), NVL(MAX(BOOKID),0) +1 FROM BOOK;
+
+INSERT INTO BOOK
+        (BOOKID, BOOKNAME, PUBLISHER, PRICE) -- 실행할때 마다 생성됨(번호 증가하면서)
+VALUES(SEQ_BOOK.NEXTVAL, '시퀀스사용', 'IT_BOOK', 25000);
+        
+SELECT * FROM BOOK ORDER BY BOOKID DESC;
